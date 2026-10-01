@@ -15,6 +15,7 @@ public class ZipService extends AccessibilityService {
     final Handler handler = new Handler(Looper.getMainLooper());
     boolean running;
     long lastClick;
+    String targetName = DotSettings.DEFAULT_NAME;
     final Runnable tick = () -> step();
     @Override protected void onServiceConnected() { instance = this; if (armed()) begin(); }
     @Override public void onDestroy() { instance = null; handler.removeCallbacks(tick); super.onDestroy(); }
@@ -23,17 +24,21 @@ public class ZipService extends AccessibilityService {
         if (!running && armed()) begin();
     }
     boolean armed() { return getSharedPreferences("shortcut",0).getLong("armedUntil",0)>System.currentTimeMillis(); }
-    void begin() { if (!running) { running=true; lastClick=0; handler.postDelayed(tick,500); } }
+    void begin() {
+        handler.removeCallbacks(tick);
+        targetName = DotSettings.name(this);
+        running=true; lastClick=0; handler.postDelayed(tick,500);
+    }
     void stop() { running=false; handler.removeCallbacks(tick); getSharedPreferences("shortcut",0).edit().remove("armedUntil").apply(); }
     void step() {
-        if (!armed()) { if (running) Toast.makeText(this,"Could not select zip. Open ChatGPT’s menu and check its name.",Toast.LENGTH_LONG).show(); stop(); return; }
+        if (!armed()) { if (running) Toast.makeText(this,"Could not select " + targetName + ". Open ChatGPT’s menu and check its name.",Toast.LENGTH_LONG).show(); stop(); return; }
         AccessibilityNodeInfo root = getRootInActiveWindow();
         if (root != null && "com.openai.chatgpt".contentEquals(root.getPackageName())) {
-            if (find(root,"Message zip",false) != null && find(root,"Scheduled",true)==null) { stop(); return; }
+            if (find(root,"Message " + targetName,true) != null && find(root,"Scheduled",true)==null) { stop(); return; }
             if (System.currentTimeMillis()-lastClick>1200) {
                 if (find(root,"Scheduled",true)!=null) {
-                    AccessibilityNodeInfo zip=find(root,"zip",true);
-                    if (zip!=null) click(zip);
+                    AccessibilityNodeInfo dot=find(root,targetName,true);
+                    if (dot!=null) click(dot);
                 } else {
                     AccessibilityNodeInfo menu=find(root,"Menu",true);
                     if (menu!=null) click(menu);

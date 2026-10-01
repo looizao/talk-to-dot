@@ -38,4 +38,4 @@ Back up the private keystore securely. A replacement key cannot transparently up
 
 ## Limits of this first process
 
-CI compiles the APK, verifies its signature, and publishes checksums. UI navigation remains a manual real-device check. There is no staged rollout or required release approval environment yet. Future work includes configurable Dot names, language support, device/UI regression coverage, and a fuller release review process.
+CI compiles the APK, verifies its signature, and publishes checksums. UI navigation remains a manual real-device check. There is no staged rollout or required release approval environment yet. Dot names are configurable starting in v1.2.0. Before publishing, verify the default, saving and reopening a custom name, blank-name rejection, reset to zip, and navigation from Tasks. A configured name that does not exist must time out instead of opening a different Dot. Future work includes language support, device/UI regression coverage, and a fuller release review process.

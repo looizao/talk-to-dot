@@ -1,0 +1,7 @@
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+ <shortcut android:shortcutId="configure_dot" android:enabled="true"
+  android:icon="@drawable/icon" android:shortcutShortLabel="@string/configure_dot">
+  <intent android:action="android.intent.action.VIEW"
+   android:targetPackage="local.zipshortcut" android:targetClass="local.zipshortcut.SettingsActivity" />
+ </shortcut>
+</shortcuts>

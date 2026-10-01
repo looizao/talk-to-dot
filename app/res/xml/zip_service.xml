@@ -1,4 +1,5 @@
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+ android:settingsActivity="local.zipshortcut.SettingsActivity"
  android:description="@string/service_description"
  android:accessibilityEventTypes="typeWindowStateChanged|typeWindowContentChanged"
  android:packageNames="com.openai.chatgpt"
