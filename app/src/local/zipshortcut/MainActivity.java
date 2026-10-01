@@ -19,7 +19,7 @@ public class MainActivity extends Activity {
         TextView title = new TextView(this); title.setText("Talk to Zip"); title.setTextSize(28);
         layout.addView(title);
         TextView info = new TextView(this);
-        info.setText("This shortcut opens ChatGPT, opens its menu, and selects your saved Dot (zip by default).\n\nAndroid Accessibility access is required to tap those controls. Android grants broad screen access; this app is configured for ChatGPT and acts only for 15 seconds after you launch it.\n\nIt does not send messages, place calls, store chat content, or connect to the internet.\n\nEnable Talk to Zip in Accessibility, then tap its app icon again. If Android blocks the switch, open Talk to Zip’s App info menu and allow restricted settings for this locally built app.");
+        info.setText("This shortcut opens ChatGPT, opens its menu, and selects your saved Dot (zip by default).\n\nAndroid Accessibility access is required to tap those controls. Android grants broad screen access; this app is configured for ChatGPT and acts only for 30 seconds after you launch it.\n\nIt does not send messages, place calls, store chat content, or connect to the internet.\n\nEnable Talk to Zip in Accessibility, then tap its app icon again. If Android blocks the switch, open Talk to Zip’s App info menu and allow restricted settings for this locally built app.");
         info.setTextSize(17); info.setPadding(0,32,0,32); layout.addView(info);
         Button choose = new Button(this); choose.setText("Choose Dot");
         choose.setOnClickListener(v -> startActivity(new Intent(this, SettingsActivity.class)));
@@ -44,7 +44,8 @@ public class MainActivity extends Activity {
         Intent i = getPackageManager().getLaunchIntentForPackage("com.openai.chatgpt");
         if (i == null) return;
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        getSharedPreferences("shortcut",0).edit().putLong("armedUntil",System.currentTimeMillis()+15000).apply();
+        getSharedPreferences("shortcut",0).edit().putLong("armedUntil",System.currentTimeMillis()+30000)
+                .putLong("startedAtElapsed",android.os.SystemClock.elapsedRealtime()).apply();
         if (ZipService.instance != null) ZipService.instance.begin();
         startActivity(i); finish();
     }

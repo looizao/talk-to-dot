@@ -39,22 +39,22 @@ The app retains its **Talk to Zip** name and icon regardless of the chosen Dot. 
 
 ## How it works
 
-`MainActivity` starts ChatGPT's launcher activity, using `CLEAR_TOP` and `SINGLE_TOP` so an old screen above it does not prevent navigation. It arms `ZipService` for at most 15 seconds. The service snapshots the locally saved name at launch, defaulting to `zip`.
+`MainActivity` starts ChatGPT's launcher activity, using `CLEAR_TOP` and `SINGLE_TOP` so an old screen above it does not prevent navigation. It arms `ZipService` for at most 30 seconds. The service snapshots the locally saved name at launch, defaulting to `zip`.
 
 The Accessibility service inspects ChatGPT's visible accessibility nodes and:
 
-1. Stops when the composer exactly matches **Message <saved name>** and the sidebar is closed.
+1. Stops after the composer exactly matches **Message <saved name>** with the sidebar closed for a short confirmation period.
 2. Selects the entry whose name exactly matches the saved Dot name if the sidebar is open, identified by **Scheduled**.
 3. Opens **Menu** from a regular ChatGPT screen.
 4. Uses **Navigate up** or **Navegar para cima** when a nested screen such as **Tasks** has a back arrow instead of Menu, then continues toward the sidebar.
 
-It tries a node's click action, then a clickable parent, and finally a gesture at the node's bounds. Navigation advances as soon as Accessibility reports a usable next screen. A 120 ms watchdog handles missed events, and a 700 ms retry delay applies only when the same action remains visible, avoiding duplicate menu toggles. The shortcut times out if it cannot reach the selected Dot. It does not send a message or start a call.
+It tries a node's click action, then a clickable parent, and finally a gesture at the node's bounds. Navigation advances as soon as Accessibility reports a usable next screen. A 120 ms watchdog handles missed events, and a 700 ms retry delay applies only when the same action remains visible, avoiding duplicate menu toggles. After selecting a Dot, it watches for the composer instead of reopening the menu while the old chat controls remain visible. A 4-second recovery window handles a stalled selection; it does not postpone completion when the composer is ready. The destination is confirmed for 150 ms to reject transient screen state. Nodes are refreshed and the active ChatGPT window is checked again before clicking or dispatching a gesture. Switching apps pauses interaction; returning within the 30-second deadline resumes it. Accessibility feedback interruption does not cancel navigation. The shortcut times out if it cannot reach the selected Dot. It does not send a message or start a call.
 
 ## Accessibility and privacy
 
-Android grants Accessibility services broad screen-reading and interaction capabilities. This service is configured for `com.openai.chatgpt` and checks the active package before interacting. It acts only during the 15-second window after you launch the shortcut.
+Android grants Accessibility services broad screen-reading and interaction capabilities. This service is configured for `com.openai.chatgpt` and checks the active package before interacting. It acts only during the 30-second window after you launch the shortcut.
 
-The app requests no `INTERNET` permission, has no analytics or remote service, and does not persist conversation content. Debug-level Android logs record only navigation duration, without Dot names or chat content. Its preference storage contains the selected Dot name and the temporary automation deadline. The source and manifest are available for inspection.
+The app requests no `INTERNET` permission, has no analytics or remote service, and does not persist conversation content. Debug-level Android logs record generic navigation actions and duration, without Dot names or chat content. Its preference storage contains the selected Dot name and the temporary automation deadline and start time. The source and manifest are available for inspection.
 
 ## What was tested
 
@@ -65,13 +65,28 @@ Version 1.1 was tested on a Motorola Edge 60 Pro with ChatGPT **1.2026.272**:
 - **Tasks → Home → tap Talk to Zip in Niagara Launcher → Message zip**.
 - The same Tasks flow with an ordinary new chat beneath Tasks, verifying that automation returns, opens the sidebar, and selects Zip.
 
-These were manual device checks, not automated UI tests. GitHub Actions verifies APK compilation and signing, but does not prove navigation works on every ChatGPT version. App updates, translated labels, a Dot renamed without updating the setting, or unexpected dialogs can break the shortcut.
+The upcoming v1.2.0 also has ADB-driven device checks for background music, launching from YouTube Music, restarting ChatGPT from Chrome under bounded CPU load, and switching to Music during cold startup before returning to ChatGPT. Tests check the exact destination composer and that Music remains foreground during interruption.
+
+For repeatable checks on an unlocked phone with Accessibility enabled and the chosen name already saved:
+
+```bash
+export ANDROID_SERIAL="your-device-serial" # Required when multiple devices are connected.
+python scripts/device-check.py music --dot-name zip
+python scripts/device-check.py cold --dot-name zip
+python scripts/device-check.py interrupted --dot-name zip
+```
+
+These checks open an ordinary new chat, visit Tasks, launch YouTube Music or Chrome, and may force-stop ChatGPT. Start music yourself before testing; the script does not start playback. They never send messages. UI snapshots are stored in ignored `build/device-checks/` and may contain private screen content; do not publish them. The script requires the tested interface labels and those two apps. UiAutomator snapshots can temporarily affect Accessibility services, so navigation timing should be treated as approximate; the interrupted check uses activity state while the request is armed.
+
+The v1.1 checks were manual. GitHub Actions verifies APK compilation and signing, but does not prove navigation works on every ChatGPT version. App updates, translated labels, a Dot renamed without updating the setting, or unexpected dialogs can break the shortcut.
 
 ## Navigation speed
 
 The upcoming v1.2.0 removes the previous 500 ms startup wait, 400 ms polling interval, and 1.2-second delay between different navigation actions. Accessibility events drive progress immediately; retries of the same unchanged action remain throttled.
 
 A device comparison from Tasks with ChatGPT already running measured 2,266 ms before this change and 926 ms afterwards. A launcher run with an ordinary chat beneath Tasks also reached Zip successfully. Timing measures service start to accessibility confirmation of the target composer, rather than the moment pixels finish animating. These are individual checks, not guaranteed performance numbers.
+
+Final reliability checks on the same phone recorded 1,061 ms when launching from Music with playback active, 6,711 ms for a cold start from Chrome with music and two bounded CPU load workers, and 4,294 ms for a cold-start interruption including a two-second stay in Music before returning. All reached the exact Zip composer; the interruption check also verified Music stayed foreground. Timing includes the launch request and survives service reconnections. ADB UI inspection affects Accessibility delivery, so these are approximate diagnostic timings, not a benchmark.
 
 ChatGPT startup remains outside the shortcut’s control: a check after force-stopping ChatGPT took 8,032 ms. This is still menu automation, not a native direct Dot link. The tested ChatGPT app registers a direct Remote route but no equivalent Dot route was found.
 

@@ -4,7 +4,7 @@
 
 1. Update `android:versionName` and increment `android:versionCode` in `app/AndroidManifest.xml`. Version names use `MAJOR.MINOR.PATCH`.
 2. Add `docs/releases/vMAJOR.MINOR.PATCH.md` describing changes, tested device flows, and compatibility limits.
-3. Build and test on a real device, including **Tasks → Home → tap shortcut → Message zip**. Also test with an ordinary chat beneath Tasks; returning to an already-open Zip conversation does not cover the full navigation path.
+3. Build and test on a real device, including **Tasks → Home → tap shortcut → Message zip**. Run `scripts/device-check.py` for music, cold start, and interruption; include a bounded loaded-phone run and verify another app remains foreground when navigation is interrupted. Also test with an ordinary chat beneath Tasks; returning to an already-open Zip conversation does not cover the full navigation path.
 4. Push the changes to `main` and wait for `Build APK` to pass.
 5. Create and push the matching annotated tag:
 
@@ -38,4 +38,4 @@ Back up the private keystore securely. A replacement key cannot transparently up
 
 ## Limits of this first process
 
-CI compiles the APK, verifies its signature, and publishes checksums. UI navigation remains a manual real-device check. There is no staged rollout or required release approval environment yet. Dot names are configurable starting in v1.2.0. Before publishing, verify the default, saving and reopening a custom name, blank-name rejection, reset to zip, and navigation from Tasks. A configured name that does not exist must time out instead of opening a different Dot. Future work includes language support, device/UI regression coverage, and a fuller release review process.
+CI compiles the APK, verifies its signature, and publishes checksums. UI navigation requires real-device validation; the optional ADB checks are not run by CI. There is no staged rollout or required release approval environment yet. Dot names are configurable starting in v1.2.0. Before publishing, verify the default, saving and reopening a custom name, blank-name rejection, reset to zip, and navigation from Tasks. A configured name that does not exist must time out instead of opening a different Dot. Future work includes language support, device/UI regression coverage, and a fuller release review process.
