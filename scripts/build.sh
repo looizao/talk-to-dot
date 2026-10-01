@@ -49,7 +49,7 @@ else
 fi
 export KEYSTORE_PASSWORD KEY_PASSWORD
 "$TOOLS/apksigner" sign --ks "$KEYSTORE_PATH" --ks-pass env:KEYSTORE_PASSWORD --key-pass env:KEY_PASSWORD \
-  --ks-key-alias "$KEY_ALIAS" --out dist/talk-to-zip.apk build/aligned.apk
-"$TOOLS/apksigner" verify --verbose dist/talk-to-zip.apk
-(cd dist && sha256sum talk-to-zip.apk > SHA256SUMS.txt)
-echo 'Built dist/talk-to-zip.apk and dist/SHA256SUMS.txt'
+  --ks-key-alias "$KEY_ALIAS" --out dist/talk-to-dot.apk build/aligned.apk
+"$TOOLS/apksigner" verify --verbose dist/talk-to-dot.apk
+(cd dist && sha256sum talk-to-dot.apk > SHA256SUMS.txt)
+echo 'Built dist/talk-to-dot.apk and dist/SHA256SUMS.txt'

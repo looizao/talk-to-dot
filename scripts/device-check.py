@@ -2,7 +2,7 @@ import argparse,os,subprocess,time,xml.etree.ElementTree as ET,re,json
 from pathlib import Path
 parser=argparse.ArgumentParser(description="Device navigation checks; requires an unlocked, configured phone.")
 parser.add_argument('scenario',choices=['music','cold','interrupted'])
-parser.add_argument('--dot-name',default='zip',help='Must match the name saved in Talk to Zip')
+parser.add_argument('--dot-name',default='zip',help='Must match the name saved in Talk to Dot')
 args=parser.parse_args()
 DEVICE=os.environ.get('ANDROID_SERIAL')
 root=Path(__file__).resolve().parent.parent/'build'/'device-checks'
@@ -47,12 +47,12 @@ def prepare_tasks(label):
  assert has(tree,'Tasks'),'Expected Tasks starting screen'
 
 results=[]
-def verify_zip(label):
+def verify_dot(label):
  time.sleep(3)
  for attempt in range(10):
   tree=screen(label+'-result-'+str(attempt))
   if has(tree,'Message '+args.dot_name) and not has(tree,'Scheduled') and not has(tree,'Tasks'):
-   logs=adb('logcat','-d','-s','TalkToZip:D','*:S')
+   logs=adb('logcat','-d','-s','TalkToDot:D','*:S')
    times=re.findall(r'Navigation completed in (\d+) ms',logs)
    results.append({'scenario':label,'passed':True,'service_ms':int(times[-1]) if times else None})
    print(json.dumps(results[-1]),flush=True)
@@ -66,12 +66,12 @@ if scenario=='music':
  start('com.google.android.apps.youtube.music')
  tree=screen('music-foreground')
  assert any(n.get('package')=='com.google.android.apps.youtube.music' for n in tree.iter('node'))
- shortcut();verify_zip('music-playing-from-music-app')
+ shortcut();verify_dot('music-playing-from-music-app')
 elif scenario=='cold':
  prepare_tasks('loaded-cold')
  start('com.android.chrome')
  adb('shell','am','force-stop','com.openai.chatgpt')
- shortcut();verify_zip('loaded-cold-from-chrome')
+ shortcut();verify_dot('loaded-cold-from-chrome')
 elif scenario=='interrupted':
  prepare_tasks('interruption')
  adb('shell','am','force-stop','com.openai.chatgpt')
@@ -83,5 +83,5 @@ elif scenario=='interrupted':
  assert re.search(r'topResumedActivity=.*com.google.android.apps.youtube.music/',foreground),'Shortcut took over another app'
  print('Other app stayed foreground; no navigation takeover.',flush=True)
  start('com.openai.chatgpt','com.openai.chatgpt/.MainActivity')
- verify_zip('resume-after-switching-to-music')
+ verify_dot('resume-after-switching-to-music')
 (root/('stress-'+scenario+'.json')).write_text(json.dumps(results,indent=2))

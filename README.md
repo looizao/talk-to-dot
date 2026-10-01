@@ -1,8 +1,8 @@
-# Talk to Zip
+# Talk to Dot
 
-[![Build APK](https://github.com/looizao/talk-to-zip/actions/workflows/build.yml/badge.svg)](https://github.com/looizao/talk-to-zip/actions/workflows/build.yml)
-[![Latest release](https://img.shields.io/github/v/release/looizao/talk-to-zip)](https://github.com/looizao/talk-to-zip/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/looizao/talk-to-zip/total)](https://github.com/looizao/talk-to-zip/releases)
+[![Build APK](https://github.com/looizao/talk-to-dot/actions/workflows/build.yml/badge.svg)](https://github.com/looizao/talk-to-dot/actions/workflows/build.yml)
+[![Latest release](https://img.shields.io/github/v/release/looizao/talk-to-dot)](https://github.com/looizao/talk-to-dot/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/looizao/talk-to-dot/total)](https://github.com/looizao/talk-to-dot/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Android 8+](https://img.shields.io/badge/Android-8%2B-green.svg)](#requirements)
 
@@ -12,14 +12,14 @@ This is an independent, experimental utility, unaffiliated with OpenAI. It uses 
 
 ## Install and use
 
-1. Download `talk-to-zip.apk` from the [latest release](https://github.com/looizao/talk-to-zip/releases/latest) and install it on your Android phone.
-2. Open **Talk to Zip**, tap **Open Accessibility settings**, and enable its service.
-3. If Android blocks enabling a sideloaded service, review the app and then use **Settings → Apps → Talk to Zip → ⋮ → Allow restricted settings**, if offered by your device. Return to Accessibility and enable **Use Talk to Zip**. Menu names vary by phone.
-4. To choose a different Dot, long-press the **Talk to Zip** icon and select **Choose Dot**. Enter its name exactly as shown in ChatGPT’s sidebar and tap **Save name** or **Save and open Dot**. You can also open this screen from the Accessibility service’s settings.
-5. Open **Talk to Zip** again. Allow a few seconds for it to navigate to **Message <your Dot name>**.
+1. Download `talk-to-dot.apk` from the [latest release](https://github.com/looizao/talk-to-dot/releases/latest) and install it on your Android phone.
+2. Open **Talk to Dot**, tap **Open Accessibility settings**, and enable its service.
+3. If Android blocks enabling a sideloaded service, review the app and then use **Settings → Apps → Talk to Dot → ⋮ → Allow restricted settings**, if offered by your device. Return to Accessibility and enable **Use Talk to Dot**. Menu names vary by phone.
+4. To choose a different Dot, long-press the **Talk to Dot** icon and select **Choose Dot**. Enter its name exactly as shown in ChatGPT’s sidebar and tap **Save name** or **Save and open Dot**. You can also open this screen from the Accessibility service’s settings.
+5. Open **Talk to Dot** again. Allow a few seconds for it to navigate to **Message <your Dot name>**.
 6. Add its icon to your home screen or select it in your phone's **Launch app** button setting.
 
-To stop automation, disable the Talk to Zip Accessibility service. To remove it completely, uninstall Talk to Zip.
+To stop automation, disable the Talk to Dot Accessibility service. To remove it completely, uninstall Talk to Dot.
 
 ## Requirements
 
@@ -29,13 +29,19 @@ To stop automation, disable the Talk to Zip Accessibility service. To remove it 
 
 ## Choose a Dot
 
-**v1.2.0** includes configurable Dot names and faster screen-driven navigation. Download the signed APK from [Releases](https://github.com/looizao/talk-to-zip/releases/latest); it updates existing installations without changing the saved name.
+**v1.2.1** introduces the **Talk to Dot** name. Configurable Dot names and faster screen-driven navigation remain available. Download the signed APK from [Releases](https://github.com/looizao/talk-to-dot/releases/latest); it updates existing installations without changing the saved name.
 
-Version 1.2.0 and newer support a saved Dot name. Long-press the app icon → **Choose Dot**, or open **Talk to Zip** under Android Accessibility and use its service settings. The setup screen also has a **Choose Dot** button when the service is disabled.
+Version 1.2.0 and newer support a saved Dot name. Long-press the app icon → **Choose Dot**, or open **Talk to Dot** under Android Accessibility and use its service settings. The setup screen also has a **Choose Dot** button when the service is disabled.
 
 Enter the exact sidebar name, including capitalization, and tap **Save name**. Leading and trailing whitespace is trimmed; blank names are rejected. **Save and open Dot** saves the name and launches the shortcut. **Reset to zip** immediately restores the default. The setting survives app restarts and updates. Existing installations without a saved name continue using `zip`.
 
-The app retains its **Talk to Zip** name and icon regardless of the chosen Dot. Changing the setting does not rename or create a Dot in ChatGPT. If your launcher does not expose app shortcuts, use the Accessibility service’s settings instead.
+The app retains its **Talk to Dot** name and icon regardless of the chosen Dot. Changing the setting does not rename or create a Dot in ChatGPT. If your launcher does not expose app shortcuts, use the Accessibility service’s settings instead.
+
+## Updating from an earlier version
+
+Install the latest signed APK over your existing installation. Version 1.2.1 renames the launcher, setup screen, and Accessibility service to **Talk to Dot** and uses a D icon. Your saved Dot name and existing Accessibility authorization remain compatible; zip is still the default.
+
+The Android package `local.zipshortcut` and service component `ZipService` retain their original identifiers for update compatibility. The repository is now [looizao/talk-to-dot](https://github.com/looizao/talk-to-dot), and new builds produce `talk-to-dot.apk`. Versions 1.1.0 and 1.2.0 were published before the rename; their existing APK assets remain named `talk-to-zip.apk` and display the former app name.
 
 ## How it works
 
@@ -62,7 +68,7 @@ Version 1.1 was tested on a Motorola Edge 60 Pro with ChatGPT **1.2026.272**:
 
 - Ordinary ChatGPT screen → shortcut → **Message zip**.
 - ChatGPT restart → shortcut → **Message zip**.
-- **Tasks → Home → tap Talk to Zip in Niagara Launcher → Message zip**.
+- **Tasks → Home → tap Talk to Dot in Niagara Launcher → Message zip**.
 - The same Tasks flow with an ordinary new chat beneath Tasks, verifying that automation returns, opens the sidebar, and selects Zip.
 
 Configuration was also checked on-device: the default zip, saving and reopening a custom name, rejecting a blank save, timing out for a nonexistent name without selecting a different Dot, resetting to zip, and Save and open Dot.
@@ -104,7 +110,7 @@ export ANDROID_HOME="/path/to/Android/Sdk"
 ./scripts/build.sh
 ```
 
-Outputs: `dist/talk-to-zip.apk` and `dist/SHA256SUMS.txt`. Without release credentials the script creates a local development signing key in ignored `build/`. A development-signed APK cannot update an official release without uninstalling it first.
+Outputs: `dist/talk-to-dot.apk` and `dist/SHA256SUMS.txt`. Without release credentials the script creates a local development signing key in ignored `build/`. A development-signed APK cannot update an official release without uninstalling it first.
 
 For a release build, supply `RELEASE_BUILD=true`, `KEYSTORE_PATH`, `KEYSTORE_PASSWORD`, optional `KEY_PASSWORD`, and `KEY_ALIAS`. Keep the keystore private. SDK versions can be overridden with `SDK_PLATFORM` and `BUILD_TOOLS_VERSION`.
 
@@ -123,7 +129,7 @@ gh run download RUN_ID --dir downloaded-apk
 Manual, main-branch, and pull-request builds produce **development APKs**. Download official signed APKs from Releases:
 
 ```bash
-gh release download --pattern 'talk-to-zip.apk' --pattern 'SHA256SUMS.txt'
+gh release download --pattern 'talk-to-dot.apk' --pattern 'SHA256SUMS.txt'
 sha256sum -c SHA256SUMS.txt
 ```
 

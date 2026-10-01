@@ -1,4 +1,4 @@
-# Releasing Talk to Zip
+# Releasing Talk to Dot
 
 ## Current procedure
 
@@ -9,11 +9,11 @@
 5. Create and push the matching annotated tag:
 
 ```bash
-git tag -a v1.2.0 -m 'Talk to Zip v1.2.0'
-git push origin v1.2.0
+git tag -a v1.2.1 -m 'Talk to Dot v1.2.1'
+git push origin v1.2.1
 gh run list --workflow build.yml --limit 5
 gh run watch RUN_ID --exit-status
-gh release view v1.2.0
+gh release view v1.2.1
 ```
 
 Use the version you actually prepared. The workflow rejects a tag that does not match the manifest or has no release notes. Tags should point to the tested commit. Do not move published tags; fix a failed or incorrect published release with a new version.
@@ -38,4 +38,4 @@ Back up the private keystore securely. A replacement key cannot transparently up
 
 ## Limits of this first process
 
-CI compiles the APK, verifies its signature, and publishes checksums. UI navigation requires real-device validation; the optional ADB checks are not run by CI. There is no staged rollout or required release approval environment yet. Dot names are configurable starting in v1.2.0. Before publishing, verify the default, saving and reopening a custom name, blank-name rejection, reset to zip, and navigation from Tasks. A configured name that does not exist must time out instead of opening a different Dot. Future work includes language support, device/UI regression coverage, and a fuller release review process.
+CI compiles the APK, verifies its signature, and publishes checksums. UI navigation requires real-device validation; the optional ADB checks are not run by CI. There is no staged rollout or required release approval environment yet. Dot names are configurable starting in v1.2.0; v1.2.1 introduces the Talk to Dot name. Before publishing, verify the default, saving and reopening a custom name, blank-name rejection, reset to zip, and navigation from Tasks. A configured name that does not exist must time out instead of opening a different Dot. Future work includes language support, device/UI regression coverage, and a fuller release review process.

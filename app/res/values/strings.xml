@@ -1,4 +1,4 @@
 <resources>
  <string name="configure_dot">Choose Dot</string>
- <string name="service_description">After you launch Talk to Zip, opens ChatGPT and selects your configured Dot (zip by default). Only acts in ChatGPT for 30 seconds after launch. Does not send messages, place calls, store conversation content, or use the internet. Use the service settings or the app’s Choose Dot shortcut to change the name.</string>
+ <string name="service_description">After you launch Talk to Dot, opens ChatGPT and selects your configured Dot (zip by default). Only acts in ChatGPT for 30 seconds after launch. Does not send messages, place calls, store conversation content, or use the internet. Use the service settings or the app’s Choose Dot shortcut to change the name.</string>
 </resources>

@@ -35,7 +35,7 @@ public class ZipService extends AccessibilityService {
     @Override public void onInterrupt() {
         // Android interrupts Accessibility feedback, which this service does not produce.
         // Opening a media app must not cancel the explicitly armed navigation request.
-        android.util.Log.d("TalkToZip", "Feedback interrupted; navigation remains armed");
+        android.util.Log.d("TalkToDot", "Feedback interrupted; navigation remains armed");
     }
     @Override public void onAccessibilityEvent(AccessibilityEvent e) {
         if (!running && armed()) begin();
@@ -46,7 +46,7 @@ public class ZipService extends AccessibilityService {
         targetName = DotSettings.name(this);
         startedAt = getSharedPreferences("shortcut",0).getLong("startedAtElapsed",SystemClock.elapsedRealtime());
         running=true; lastClick=0; lastAction=""; composerSeenAt=0; composerWindow=-1;
-        android.util.Log.d("TalkToZip", "Navigation armed");
+        android.util.Log.d("TalkToDot", "Navigation armed");
         schedule(0);
     }
     void schedule(long delay) {
@@ -59,7 +59,7 @@ public class ZipService extends AccessibilityService {
     }
     void step() {
         if (!armed()) {
-            android.util.Log.d("TalkToZip", "Navigation deadline expired");
+            android.util.Log.d("TalkToDot", "Navigation deadline expired");
             if (running) Toast.makeText(this,"Could not select " + targetName + ". Open ChatGPT’s menu and check its name.",Toast.LENGTH_LONG).show();
             stop(); return;
         }
@@ -73,7 +73,7 @@ public class ZipService extends AccessibilityService {
                 }
                 // Confirm the destination survived a screen update instead of accepting a stale tree.
                 if (now-composerSeenAt>=150) {
-                    android.util.Log.d("TalkToZip", "Navigation completed in " + (now-startedAt) + " ms");
+                    android.util.Log.d("TalkToDot", "Navigation completed in " + (now-startedAt) + " ms");
                     stop(); return;
                 }
                 schedule(150-(now-composerSeenAt)); return;
@@ -100,7 +100,7 @@ public class ZipService extends AccessibilityService {
             // Advance immediately when the next screen exposes a different action.
             // Retry an unchanged screen slowly to avoid toggling its menu twice.
             if (target!=null && (!action.equals(lastAction) || sinceClick>=RETRY_MS)) {
-                if (click(target)) { lastAction=action; android.util.Log.d("TalkToZip", "Navigation action: " + action); }
+                if (click(target)) { lastAction=action; android.util.Log.d("TalkToDot", "Navigation action: " + action); }
             }
         }
         schedule(WATCHDOG_MS);
