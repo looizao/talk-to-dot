@@ -15,7 +15,7 @@ This is an independent, experimental utility, unaffiliated with OpenAI. It uses 
 1. Download `talk-to-dot.apk` from the [latest release](https://github.com/looizao/talk-to-dot/releases/latest) and install it on your Android phone.
 2. Open **Talk to Dot**, tap **Open Accessibility settings**, and enable its service.
 3. If Android blocks enabling a sideloaded service, review the app and then use **Settings → Apps → Talk to Dot → ⋮ → Allow restricted settings**, if offered by your device. Return to Accessibility and enable **Use Talk to Dot**. Menu names vary by phone.
-4. To choose a different Dot, long-press the **Talk to Dot** icon and select **Choose Dot**. Enter its name exactly as shown in ChatGPT’s sidebar and tap **Save name** or **Save and open Dot**. You can also open this screen from the Accessibility service’s settings.
+4. To choose a different Dot, long-press the **Talk to Dot** icon and select **Choose Dot**. Enter its name exactly as shown in ChatGPT’s sidebar, choose a **Home screen icon**, then tap **Save changes** or **Save and open Dot**. You can also open this screen from the Accessibility service’s settings.
 5. Open **Talk to Dot** again. Allow a few seconds for it to navigate to **Message <your Dot name>**.
 6. Add its icon to your home screen or select it in your phone's **Launch app** button setting.
 
@@ -29,23 +29,37 @@ To stop automation, disable the Talk to Dot Accessibility service. To remove it 
 
 ## Choose a Dot
 
-**v1.2.1** introduces the **Talk to Dot** name. Configurable Dot names and faster screen-driven navigation remain available. Download the signed APK from [Releases](https://github.com/looizao/talk-to-dot/releases/latest); it updates existing installations without changing the saved name.
+**v1.3.0** adds configurable home-screen icons with original Dot-style character artwork and a live preview. The default icon is a green frog resembling Zip; **zip** remains the default name. Download the signed APK from [Releases](https://github.com/looizao/talk-to-dot/releases/latest); it updates existing installations without changing the saved name.
 
 Version 1.2.0 and newer support a saved Dot name. Long-press the app icon → **Choose Dot**, or open **Talk to Dot** under Android Accessibility and use its service settings. The setup screen also has a **Choose Dot** button when the service is disabled.
 
-Enter the exact sidebar name, including capitalization, and tap **Save name**. Leading and trailing whitespace is trimmed; blank names are rejected. **Save and open Dot** saves the name and launches the shortcut. **Reset to zip** immediately restores the default. The setting survives app restarts and updates. Existing installations without a saved name continue using `zip`.
+Enter the exact sidebar name, including capitalization, and tap **Save changes**. Leading and trailing whitespace is trimmed; blank names are rejected. **Save and open Dot** saves the name and launches the shortcut. **Reset name to zip** immediately restores the default name without changing the icon. The setting survives app restarts and updates. Existing installations without a saved name continue using `zip`.
 
-The app retains its **Talk to Dot** name and icon regardless of the chosen Dot. Changing the setting does not rename or create a Dot in ChatGPT. If your launcher does not expose app shortcuts, use the Accessibility service’s settings instead.
+The app retains its **Talk to Dot** name regardless of the chosen Dot; its launcher icon can be selected independently. Changing the setting does not rename or create a Dot in ChatGPT. If your launcher does not expose app shortcuts, use the Accessibility service’s settings instead. On the tested Niagara setup, long-press opens Niagara’s own menu; the Accessibility settings gear provides a reliable route to this picker.
+
+## Choose an icon
+
+Open **Choose Dot**, select a **Home screen icon**, then tap **Save changes** or **Save and open Dot**. The preview updates immediately; the launcher changes only after saving. Available icons are **Frog**, **Cat**, **Fox**, **Bear**, **Owl**, and **Classic D**. The green frog is the default, and the selected icon survives reopening settings and signed app updates.
+
+| Frog | Cat | Fox | Bear | Owl |
+| --- | --- | --- | --- | --- |
+| <img src="app/res/drawable-nodpi/icon_frog.png" width="72" alt="Frog"> | <img src="app/res/drawable-nodpi/icon_cat.png" width="72" alt="Cat"> | <img src="app/res/drawable-nodpi/icon_fox.png" width="72" alt="Fox"> | <img src="app/res/drawable-nodpi/icon_bear.png" width="72" alt="Bear"> | <img src="app/res/drawable-nodpi/icon_owl.png" width="72" alt="Owl"> |
+
+These are original illustrations inspired by the rounded character style of Dots, rather than official OpenAI assets. The picker uses the same artwork as the launcher. This changes the shortcut’s appearance; it does not change your Dot’s avatar in ChatGPT. Android App info and the Accessibility service retain the default frog icon.
+
+Launchers may take a moment to refresh. Some launchers remove a home-screen entry when its icon component changes; if that happens, add **Talk to Dot** again from the app list. A phone button configured for the previous launcher component may also need Talk to Dot selected again. **Choose Dot** remains available through the active icon’s long-press shortcut and the Accessibility service’s settings.
 
 ## Updating from an earlier version
 
-Install the latest signed APK over your existing installation. Version 1.2.1 renames the launcher, setup screen, and Accessibility service to **Talk to Dot** and uses a D icon. Your saved Dot name and existing Accessibility authorization remain compatible; zip is still the default.
+Install the latest signed APK over your existing installation. Version 1.2.1 introduced the **Talk to Dot** name; version 1.3.0 replaces the default D icon with a green frog and adds the icon picker. **Classic D** is available if you prefer the previous icon. Your saved Dot name and existing Accessibility authorization remain compatible; zip is still the default.
 
-The Android package `local.zipshortcut` and service component `ZipService` retain their original identifiers for update compatibility. The repository is now [looizao/talk-to-dot](https://github.com/looizao/talk-to-dot), and new builds produce `talk-to-dot.apk`. Versions 1.1.0 and 1.2.0 were published before the rename; their existing APK assets remain named `talk-to-zip.apk` and display the former app name.
+The Android package `local.zipshortcut` and service component `ZipService` retain their original identifiers for update compatibility. The original `MainActivity` launcher identifier now acts as the frog alias for a stable `LauncherActivity`; other icon choices use their own launcher aliases. The repository is now [looizao/talk-to-dot](https://github.com/looizao/talk-to-dot), and new builds produce `talk-to-dot.apk`. Versions 1.1.0 and 1.2.0 were published before the rename; their existing APK assets remain named `talk-to-zip.apk` and display the former app name.
 
 ## How it works
 
-`MainActivity` starts ChatGPT's launcher activity, using `CLEAR_TOP` and `SINGLE_TOP` so an old screen above it does not prevent navigation. It arms `ZipService` for at most 30 seconds. The service snapshots the locally saved name at launch, defaulting to `zip`.
+`LauncherActivity`, through the existing `MainActivity` navigation implementation, starts ChatGPT's launcher activity, using `CLEAR_TOP` and `SINGLE_TOP` so an old screen above it does not prevent navigation. It arms `ZipService` for at most 30 seconds. The service snapshots the locally saved name at launch, defaulting to `zip`.
+
+`IconSettings` switches among [Android launcher aliases](https://developer.android.com/guide/topics/manifest/activity-alias-element). Android 13+ applies the component changes as a batch; on older Android, the new alias is enabled before the old ones are disabled. The target `LauncherActivity` and `ZipService` remain enabled. Each alias carries the Choose Dot shortcut metadata.
 
 The Accessibility service inspects ChatGPT's visible accessibility nodes and:
 
@@ -60,7 +74,7 @@ It tries a node's click action, then a clickable parent, and finally a gesture a
 
 Android grants Accessibility services broad screen-reading and interaction capabilities. This service is configured for `com.openai.chatgpt` and checks the active package before interacting. It acts only during the 30-second window after you launch the shortcut.
 
-The app requests no `INTERNET` permission, has no analytics or remote service, and does not persist conversation content. Debug-level Android logs record generic navigation actions and duration, without Dot names or chat content. Its preference storage contains the selected Dot name and the temporary automation deadline and start time. The source and manifest are available for inspection.
+The app requests no `INTERNET` permission, has no analytics or remote service, and does not persist conversation content. Debug-level Android logs record generic navigation actions and duration, without Dot names or chat content. Its preference storage contains the selected Dot name, icon choice, and the temporary automation deadline and start time. The source and manifest are available for inspection.
 
 ## What was tested
 
@@ -111,6 +125,16 @@ export ANDROID_HOME="/path/to/Android/Sdk"
 ```
 
 Outputs: `dist/talk-to-dot.apk` and `dist/SHA256SUMS.txt`. Without release credentials the script creates a local development signing key in ignored `build/`. A development-signed APK cannot update an official release without uninstalling it first.
+
+The PNG artwork is committed, so regular builds need no graphics dependencies. To edit and regenerate the original icons:
+
+```bash
+python3 -m venv build/icon-tools
+build/icon-tools/bin/pip install CairoSVG==2.9.1
+build/icon-tools/bin/python scripts/render-icons.py
+```
+
+SVG sources live in `art/icons/` and are covered by the project’s MIT license. APK builds also compile the `R.java` source generated by Android’s resource packager.
 
 For a release build, supply `RELEASE_BUILD=true`, `KEYSTORE_PATH`, `KEYSTORE_PASSWORD`, optional `KEY_PASSWORD`, and `KEY_ALIAS`. Keep the keystore private. SDK versions can be overridden with `SDK_PLATFORM` and `BUILD_TOOLS_VERSION`.
 

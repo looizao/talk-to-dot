@@ -21,7 +21,7 @@ done
 mkdir -p build/classes build/dex dist
 "$TOOLS/aapt" package -f -m -J build -M app/AndroidManifest.xml -S app/res -I "$ANDROID_JAR" -F build/unsigned.apk
 "$TOOLS/apksigner" version >/dev/null
-javac -source 8 -target 8 -classpath "$ANDROID_JAR" -d build/classes app/src/local/zipshortcut/*.java
+javac -source 8 -target 8 -classpath "$ANDROID_JAR" -d build/classes build/local/zipshortcut/R.java app/src/local/zipshortcut/*.java
 jar cf build/classes.jar -C build/classes .
 "$TOOLS/d8" --lib "$ANDROID_JAR" --min-api 26 --output build/dex build/classes.jar
 cp build/dex/classes.dex build/classes.dex

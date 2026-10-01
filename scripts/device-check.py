@@ -12,8 +12,11 @@ def adb(*args):
  return subprocess.run(['adb',*(['-s',DEVICE] if DEVICE else []),*args],capture_output=True,text=True,check=True,timeout=45).stdout
 
 def screen(label):
- adb('shell','uiautomator','dump','/sdcard/window.xml')
- xml=adb('shell','cat','/sdcard/window.xml')
+ remote='/sdcard/talk-to-dot-'+label.replace(' ','-')+'.xml'
+ result=adb('shell','uiautomator','dump',remote)
+ if 'dumped to:' not in result:raise RuntimeError('UI snapshot failed: '+result)
+ xml=adb('shell','cat',remote)
+ adb('shell','rm',remote)
  (root/('stress-'+label+'.xml')).write_text(xml)
  return ET.fromstring(xml)
 
@@ -31,7 +34,13 @@ def start(pkg,component=None):
  if component:adb('shell','am','start','-W','-n',component)
  else:adb('shell','am','start','-W','-a','android.intent.action.MAIN','-c','android.intent.category.LAUNCHER','-p',pkg)
 
-def shortcut():start('local.zipshortcut','local.zipshortcut/.MainActivity')
+def launcher_component():
+ output=adb('shell','cmd','package','query-activities','--brief','-a','android.intent.action.MAIN','-c','android.intent.category.LAUNCHER','-p','local.zipshortcut')
+ components=re.findall(r'^\s*(local\.zipshortcut/[A-Za-z0-9_.]+)\s*$',output,re.M)
+ if len(components)!=1:raise RuntimeError('Expected one enabled Talk to Dot launcher icon')
+ return components[0]
+
+def shortcut():start('local.zipshortcut',launcher_component())
 
 def prepare_tasks(label):
  start('com.openai.chatgpt','com.openai.chatgpt/.MainActivity')
@@ -75,7 +84,7 @@ elif scenario=='cold':
 elif scenario=='interrupted':
  prepare_tasks('interruption')
  adb('shell','am','force-stop','com.openai.chatgpt')
- adb('shell','am start -W -n local.zipshortcut/.MainActivity >/dev/null; sleep 0.1; am start -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -p com.google.android.apps.youtube.music >/dev/null')
+ adb('shell','am start -W -n '+launcher_component()+' >/dev/null; sleep 0.1; am start -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -p com.google.android.apps.youtube.music >/dev/null')
  foreground=adb('shell','dumpsys','activity','activities')
  assert re.search(r'topResumedActivity=.*com.google.android.apps.youtube.music/',foreground),'Music did not stay foreground'
  time.sleep(2)
