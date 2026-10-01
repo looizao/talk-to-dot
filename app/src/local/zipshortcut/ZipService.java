@@ -6,51 +6,77 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Toast;
 
 public class ZipService extends AccessibilityService {
     static ZipService instance;
+    private static final long WATCHDOG_MS = 120;
+    private static final long RETRY_MS = 700;
     final Handler handler = new Handler(Looper.getMainLooper());
     boolean running;
     long lastClick;
+    long startedAt;
+    String lastAction = "";
     String targetName = DotSettings.DEFAULT_NAME;
     final Runnable tick = () -> step();
+
     @Override protected void onServiceConnected() { instance = this; if (armed()) begin(); }
     @Override public void onDestroy() { instance = null; handler.removeCallbacks(tick); super.onDestroy(); }
     @Override public void onInterrupt() { stop(); }
     @Override public void onAccessibilityEvent(AccessibilityEvent e) {
         if (!running && armed()) begin();
+        else if (running) schedule(0);
     }
     boolean armed() { return getSharedPreferences("shortcut",0).getLong("armedUntil",0)>System.currentTimeMillis(); }
     void begin() {
-        handler.removeCallbacks(tick);
         targetName = DotSettings.name(this);
-        running=true; lastClick=0; handler.postDelayed(tick,500);
+        startedAt = SystemClock.elapsedRealtime();
+        running=true; lastClick=0; lastAction="";
+        schedule(0);
     }
-    void stop() { running=false; handler.removeCallbacks(tick); getSharedPreferences("shortcut",0).edit().remove("armedUntil").apply(); }
+    void schedule(long delay) {
+        handler.removeCallbacks(tick);
+        handler.postDelayed(tick,delay);
+    }
+    void stop() {
+        running=false; handler.removeCallbacks(tick);
+        getSharedPreferences("shortcut",0).edit().remove("armedUntil").apply();
+    }
     void step() {
-        if (!armed()) { if (running) Toast.makeText(this,"Could not select " + targetName + ". Open ChatGPT’s menu and check its name.",Toast.LENGTH_LONG).show(); stop(); return; }
+        if (!armed()) {
+            if (running) Toast.makeText(this,"Could not select " + targetName + ". Open ChatGPT’s menu and check its name.",Toast.LENGTH_LONG).show();
+            stop(); return;
+        }
         AccessibilityNodeInfo root = getRootInActiveWindow();
-        if (root != null && "com.openai.chatgpt".contentEquals(root.getPackageName())) {
-            if (find(root,"Message " + targetName,true) != null && find(root,"Scheduled",true)==null) { stop(); return; }
-            if (System.currentTimeMillis()-lastClick>1200) {
-                if (find(root,"Scheduled",true)!=null) {
-                    AccessibilityNodeInfo dot=find(root,targetName,true);
-                    if (dot!=null) click(dot);
-                } else {
-                    AccessibilityNodeInfo menu=find(root,"Menu",true);
-                    if (menu!=null) click(menu);
-                    else {
-                        AccessibilityNodeInfo up=find(root,"Navegar para cima",true);
-                        if (up==null) up=find(root,"Navigate up",true);
-                        if (up!=null) click(up);
-                    }
+        if (root != null && root.getPackageName()!=null && "com.openai.chatgpt".contentEquals(root.getPackageName())) {
+            boolean sidebar = find(root,"Scheduled",true)!=null;
+            if (!sidebar && find(root,"Message " + targetName,true)!=null) {
+                android.util.Log.d("TalkToZip", "Navigation completed in " + (SystemClock.elapsedRealtime()-startedAt) + " ms");
+                stop(); return;
+            }
+            AccessibilityNodeInfo target;
+            String action;
+            if (sidebar) { target=find(root,targetName,true); action="dot"; }
+            else {
+                target=find(root,"Menu",true); action="menu";
+                if (target==null) {
+                    action="up";
+                    target=find(root,"Navegar para cima",true);
+                    if (target==null) target=find(root,"Navigate up",true);
                 }
             }
+            long sinceClick=SystemClock.elapsedRealtime()-lastClick;
+            // Advance immediately when the next screen exposes a different action.
+            // Retry an unchanged screen slowly to avoid toggling its menu twice.
+            if (target!=null && sinceClick>=50 && (!action.equals(lastAction) || sinceClick>=RETRY_MS)) {
+                lastAction=action;
+                click(target);
+            }
         }
-        handler.postDelayed(tick,400);
+        schedule(WATCHDOG_MS);
     }
     AccessibilityNodeInfo find(AccessibilityNodeInfo n, String wanted, boolean exact) {
         if (n==null) return null;
@@ -60,7 +86,7 @@ public class ZipService extends AccessibilityService {
         return null;
     }
     void click(AccessibilityNodeInfo n) {
-        lastClick=System.currentTimeMillis();
+        lastClick=SystemClock.elapsedRealtime();
         AccessibilityNodeInfo parent=n;
         for(int i=0;i<6 && parent!=null;i++,parent=parent.getParent())
             if(parent.isClickable() && parent.performAction(AccessibilityNodeInfo.ACTION_CLICK))return;

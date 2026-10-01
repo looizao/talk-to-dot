@@ -48,13 +48,13 @@ The Accessibility service inspects ChatGPT's visible accessibility nodes and:
 3. Opens **Menu** from a regular ChatGPT screen.
 4. Uses **Navigate up** or **Navegar para cima** when a nested screen such as **Tasks** has a back arrow instead of Menu, then continues toward the sidebar.
 
-It tries a node's click action, then a clickable parent, and finally a gesture at the node's bounds. Navigation attempts are spaced out; the shortcut times out if it cannot reach Zip. It does not send a message or start a call.
+It tries a node's click action, then a clickable parent, and finally a gesture at the node's bounds. Navigation advances as soon as Accessibility reports a usable next screen. A 120 ms watchdog handles missed events, and a 700 ms retry delay applies only when the same action remains visible, avoiding duplicate menu toggles. The shortcut times out if it cannot reach the selected Dot. It does not send a message or start a call.
 
 ## Accessibility and privacy
 
 Android grants Accessibility services broad screen-reading and interaction capabilities. This service is configured for `com.openai.chatgpt` and checks the active package before interacting. It acts only during the 15-second window after you launch the shortcut.
 
-The app requests no `INTERNET` permission, has no analytics or remote service, and does not persist conversation content. Its preference storage contains the selected Dot name and the temporary automation deadline. The source and manifest are available for inspection.
+The app requests no `INTERNET` permission, has no analytics or remote service, and does not persist conversation content. Debug-level Android logs record only navigation duration, without Dot names or chat content. Its preference storage contains the selected Dot name and the temporary automation deadline. The source and manifest are available for inspection.
 
 ## What was tested
 
@@ -66,6 +66,14 @@ Version 1.1 was tested on a Motorola Edge 60 Pro with ChatGPT **1.2026.272**:
 - The same Tasks flow with an ordinary new chat beneath Tasks, verifying that automation returns, opens the sidebar, and selects Zip.
 
 These were manual device checks, not automated UI tests. GitHub Actions verifies APK compilation and signing, but does not prove navigation works on every ChatGPT version. App updates, translated labels, a Dot renamed without updating the setting, or unexpected dialogs can break the shortcut.
+
+## Navigation speed
+
+The upcoming v1.2.0 removes the previous 500 ms startup wait, 400 ms polling interval, and 1.2-second delay between different navigation actions. Accessibility events drive progress immediately; retries of the same unchanged action remain throttled.
+
+A device comparison from Tasks with ChatGPT already running measured 2,266 ms before this change and 926 ms afterwards. A launcher run with an ordinary chat beneath Tasks also reached Zip successfully. Timing measures service start to accessibility confirmation of the target composer, rather than the moment pixels finish animating. These are individual checks, not guaranteed performance numbers.
+
+ChatGPT startup remains outside the shortcut’s control: a check after force-stopping ChatGPT took 8,032 ms. This is still menu automation, not a native direct Dot link. The tested ChatGPT app registers a direct Remote route but no equivalent Dot route was found.
 
 ## Build from the command line
 
