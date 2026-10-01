@@ -29,7 +29,7 @@ To stop automation, disable the Talk to Zip Accessibility service. To remove it 
 
 ## Choose a Dot
 
-Configuration is available on `main` for the upcoming **v1.2.0**. The current v1.1.0 release APK still targets zip; build `main` from source or use its CI development artifact to try configuration. The tagged configurable release will follow device validation.
+**v1.2.0** includes configurable Dot names and faster screen-driven navigation. Download the signed APK from [Releases](https://github.com/looizao/talk-to-zip/releases/latest); it updates existing installations without changing the saved name.
 
 Version 1.2.0 and newer support a saved Dot name. Long-press the app icon → **Choose Dot**, or open **Talk to Zip** under Android Accessibility and use its service settings. The setup screen also has a **Choose Dot** button when the service is disabled.
 
@@ -65,7 +65,9 @@ Version 1.1 was tested on a Motorola Edge 60 Pro with ChatGPT **1.2026.272**:
 - **Tasks → Home → tap Talk to Zip in Niagara Launcher → Message zip**.
 - The same Tasks flow with an ordinary new chat beneath Tasks, verifying that automation returns, opens the sidebar, and selects Zip.
 
-The upcoming v1.2.0 also has ADB-driven device checks for background music, launching from YouTube Music, restarting ChatGPT from Chrome under bounded CPU load, and switching to Music during cold startup before returning to ChatGPT. Tests check the exact destination composer and that Music remains foreground during interruption.
+Configuration was also checked on-device: the default zip, saving and reopening a custom name, rejecting a blank save, timing out for a nonexistent name without selecting a different Dot, resetting to zip, and Save and open Dot.
+
+Version 1.2.0 also has ADB-driven device checks for background music, launching from YouTube Music, restarting ChatGPT from Chrome under bounded CPU load, and switching to Music during cold startup before returning to ChatGPT. Tests check the exact destination composer and that Music remains foreground during interruption.
 
 For repeatable checks on an unlocked phone with Accessibility enabled and the chosen name already saved:
 
@@ -82,7 +84,7 @@ The v1.1 checks were manual. GitHub Actions verifies APK compilation and signing
 
 ## Navigation speed
 
-The upcoming v1.2.0 removes the previous 500 ms startup wait, 400 ms polling interval, and 1.2-second delay between different navigation actions. Accessibility events drive progress immediately; retries of the same unchanged action remain throttled.
+Version 1.2.0 removes the previous 500 ms startup wait, 400 ms polling interval, and 1.2-second delay between different navigation actions. Accessibility events drive progress immediately; retries of the same unchanged action remain throttled.
 
 A device comparison from Tasks with ChatGPT already running measured 2,266 ms before this change and 926 ms afterwards. A launcher run with an ordinary chat beneath Tasks also reached Zip successfully. Timing measures service start to accessibility confirmation of the target composer, rather than the moment pixels finish animating. These are individual checks, not guaranteed performance numbers.
 
